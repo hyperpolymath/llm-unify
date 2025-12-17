@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 //! UI rendering
 
 use crate::app::App;
@@ -21,7 +22,7 @@ pub fn draw(f: &mut Frame, app: &App) {
             ]
             .as_ref(),
         )
-        .split(f.area());
+        .split(f.size());
 
     // Title
     let title = Paragraph::new("LLM Unify - Conversation Browser")

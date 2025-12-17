@@ -1,8 +1,9 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
 //! LLM Unify CLI
 
 use anyhow::Result;
 use clap::{Parser, Subcommand};
-use llm_unify_core::{Provider, ProviderTrait};
+use llm_unify_core::Provider;
 use llm_unify_parser::get_parser;
 use llm_unify_search::SearchEngine;
 use llm_unify_storage::{ConversationRepository, Database};
@@ -112,13 +113,14 @@ async fn main() -> Result<()> {
 
             let data = std::fs::read(&file)?;
             let conversations = parser.parse(&data)?;
+            let count = conversations.len();
 
             let repo = ConversationRepository::new(&db);
             for conv in conversations {
                 repo.save(&conv).await?;
             }
 
-            println!("Imported {} conversations from {}", conversations.len(), provider);
+            println!("Imported {} conversations from {}", count, provider);
         }
 
         Commands::List { provider } => {
