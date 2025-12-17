@@ -15,7 +15,7 @@
   '((version . "0.1.0")
     (schema-version . "1.0")
     (created . "2025-12-15")
-    (updated . "2025-12-15")
+    (updated . "2025-12-17")
     (project . "llm-unify")
     (repo . "github.com/hyperpolymath/llm-unify")))
 
@@ -151,6 +151,14 @@
 
 (define session-history
   '((snapshots
+     ((date . "2025-12-17")
+      (session . "security-hardening")
+      (accomplishments
+       ("SHA-pinned all GitHub Actions across 11 workflow files"
+        "Added SPDX license headers to all workflows"
+        "Added permissions: read-all declarations"
+        "Fixed duplicate workflow detection warning"))
+      (notes . "Security audit and hardening of CI/CD workflows"))
      ((date . "2025-12-15")
       (session . "initial-state-creation")
       (accomplishments
@@ -185,10 +193,10 @@
 (define state-summary
   '((project . "llm-unify")
     (version . "0.1.0")
-    (overall-completion . 25)
+    (overall-completion . 30)
     (next-milestone . "v0.2 - Core Functionality")
     (critical-blockers . 0)
     (high-priority-issues . 0)
-    (updated . "2025-12-15")))
+    (updated . "2025-12-17")))
 
 ;;; End of STATE.scm
