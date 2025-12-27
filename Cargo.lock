@@ -1127,12 +1127,14 @@ name = "llm-unify-cli"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "clap",
  "llm-unify-core",
  "llm-unify-parser",
  "llm-unify-search",
  "llm-unify-storage",
  "llm-unify-tui",
+ "serde",
  "serde_json",
  "tokio",
 ]
@@ -1176,8 +1178,11 @@ name = "llm-unify-storage"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "chrono",
  "llm-unify-core",
+ "serde",
  "serde_json",
+ "sha2",
  "sqlx",
  "thiserror 2.0.17",
  "tokio",

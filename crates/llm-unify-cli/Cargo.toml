@@ -19,7 +19,9 @@ llm-unify-tui = { workspace = true }
 clap = { workspace = true }
 tokio = { workspace = true }
 anyhow = { workspace = true }
+serde = { workspace = true }
 serde_json = { workspace = true }
+chrono = { workspace = true }
 
 # Packaging metadata for cargo-deb
 [package.metadata.deb]
