@@ -1,20 +1,117 @@
-//! Claude export parser (stub implementation)
+//! Claude export parser
 
-use llm_unify_core::{Conversation, Provider, ProviderTrait};
+use chrono::{DateTime, Utc};
+use llm_unify_core::{Conversation, Message, MessageRole, Metadata, Provider, ProviderTrait};
+use serde::Deserialize;
+
+#[derive(Deserialize)]
+struct ClaudeExport {
+    #[serde(default)]
+    conversations: Vec<ClaudeConversation>,
+}
+
+#[derive(Deserialize)]
+struct ClaudeConversation {
+    uuid: String,
+    name: Option<String>,
+    created_at: Option<String>,
+    updated_at: Option<String>,
+    #[serde(default)]
+    chat_messages: Vec<ClaudeMessage>,
+}
+
+#[derive(Deserialize)]
+struct ClaudeMessage {
+    uuid: String,
+    sender: String,
+    created_at: Option<String>,
+    text: String,
+}
 
 pub struct ClaudeParser;
 
 impl ProviderTrait for ClaudeParser {
-    fn parse(&self, _data: &[u8]) -> llm_unify_core::Result<Vec<Conversation>> {
-        // TODO: Implement Claude export parsing
-        Ok(Vec::new())
+    fn parse(&self, data: &[u8]) -> llm_unify_core::Result<Vec<Conversation>> {
+        let export: ClaudeExport = serde_json::from_slice(data)
+            .map_err(|e| llm_unify_core::Error::Other(format!("Claude parse error: {}", e)))?;
+
+        let mut conversations = Vec::new();
+
+        for conv_data in export.conversations {
+            let id = conv_data.uuid;
+            let title = conv_data.name.unwrap_or_else(|| "Untitled".to_string());
+
+            let created_at = conv_data
+                .created_at
+                .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
+                .map(|dt| dt.with_timezone(&Utc))
+                .unwrap_or_else(Utc::now);
+
+            let updated_at = conv_data
+                .updated_at
+                .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
+                .map(|dt| dt.with_timezone(&Utc))
+                .unwrap_or_else(Utc::now);
+
+            let mut conversation = Conversation {
+                id: id.clone(),
+                title,
+                provider: Provider::Claude,
+                created_at,
+                updated_at,
+                messages: Vec::new(),
+                metadata: Metadata::new(),
+            };
+
+            for msg_data in conv_data.chat_messages {
+                let role = match msg_data.sender.as_str() {
+                    "human" => MessageRole::User,
+                    "assistant" => MessageRole::Assistant,
+                    "system" => MessageRole::System,
+                    _ => continue,
+                };
+
+                if msg_data.text.is_empty() {
+                    continue;
+                }
+
+                let timestamp = msg_data
+                    .created_at
+                    .and_then(|s| DateTime::parse_from_rfc3339(&s).ok())
+                    .map(|dt| dt.with_timezone(&Utc))
+                    .unwrap_or_else(Utc::now);
+
+                conversation.messages.push(Message {
+                    id: msg_data.uuid,
+                    conversation_id: id.clone(),
+                    role,
+                    content: msg_data.text,
+                    timestamp,
+                    metadata: Metadata::new(),
+                });
+            }
+
+            // Sort messages by timestamp
+            conversation.messages.sort_by_key(|m| m.timestamp);
+
+            if !conversation.messages.is_empty() {
+                conversations.push(conversation);
+            }
+        }
+
+        Ok(conversations)
     }
 
     fn name(&self) -> &'static str {
         "Claude"
     }
 
-    fn validate(&self, _conversation: &Conversation) -> llm_unify_core::Result<()> {
+    fn validate(&self, conversation: &Conversation) -> llm_unify_core::Result<()> {
+        if conversation.id.is_empty() {
+            return Err(llm_unify_core::Error::InvalidConversation(
+                "Empty conversation ID".to_string(),
+            ));
+        }
         Ok(())
     }
 }

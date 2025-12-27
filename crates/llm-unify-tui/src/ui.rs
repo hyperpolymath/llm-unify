@@ -5,7 +5,6 @@ use crate::app::App;
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
     widgets::{Block, Borders, List, ListItem, Paragraph},
     Frame,
 };
@@ -22,7 +21,7 @@ pub fn draw(f: &mut Frame, app: &App) {
             ]
             .as_ref(),
         )
-        .split(f.size());
+        .split(f.area());
 
     // Title
     let title = Paragraph::new("LLM Unify - Conversation Browser")
