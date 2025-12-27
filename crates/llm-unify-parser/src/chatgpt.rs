@@ -35,6 +35,7 @@ struct ChatGptAuthor {
 
 #[derive(Deserialize)]
 struct ChatGptContent {
+    #[allow(dead_code)] // Part of ChatGPT JSON schema, may be used for format detection
     content_type: String,
     parts: Option<Vec<String>>,
 }

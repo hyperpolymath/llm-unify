@@ -27,16 +27,19 @@ LLM Unify is a production-ready Rust application providing unified access to AI 
 |`Provider` enum, `Conversation`/`Message` structs, typed metadata
 
 |**Storage**
-|SQLite with FTS5 full-text search, connection pooling, migrations
+|SQLite with WAL mode, FTS5 full-text search, connection pooling, schema versioning
 
 |**Parsers**
-|ChatGPT fully implemented; Claude, Gemini, Copilot stubbed
+|All four major providers: ChatGPT, Claude, Gemini, GitHub Copilot
 
 |**CLI**
-|13 commands: import, list, show, search, delete, export, stats, validate, backup, restore, init, tui, version
+|14 commands: import, list, show, search, delete, export, stats, validate, backup, restore, init, schema, tui, version
 
 |**TUI**
 |Ratatui-based browser with vim bindings, search mode
+
+|**Backup/Restore**
+|SHA-256 checksums, atomic operations, integrity verification
 
 |**Security**
 |Zero unsafe code, parameterized queries, input validation
@@ -83,31 +86,35 @@ crates/
 |📋 Planned
 |===
 
-=== v0.2.0 - Provider Expansion
+=== v0.2.0 - Security & Quality
 
-*Focus:* Complete provider support, security hardening
+*Focus:* Security hardening and test coverage
 
 ==== Provider Parsers
 
 [cols="1,2,1"]
 |===
-|Provider|Implementation Notes|Priority
+|Provider|Implementation Notes|Status
+
+|**ChatGPT**
+|JSON export with nested mapping structure
+|✅ Complete
 
 |**Claude**
-|Parse Anthropic export format (JSON)
-|🔴 High
+|Anthropic export format (JSON) with chat_messages
+|✅ Complete
 
 |**Gemini**
-|Parse Google Takeout format
-|🔴 High
+|Multiple formats: Gem Chat Exporter, ai-chat-exporter
+|✅ Complete
 
 |**Copilot**
-|Parse Microsoft export format
-|🟡 Medium
+|VS Code export format with requests/responses
+|✅ Complete
 
 |**Other**
 |Generic JSON/Markdown import
-|🟢 Low
+|📋 Planned
 |===
 
 ==== Security Enhancements
@@ -235,20 +242,20 @@ crates/
 |Provider|Notes|Status
 
 |ChatGPT
-|JSON export format, fully tested
+|JSON export format with nested mappings
 |✅ Complete
 
 |Claude
-|JSON export, API differences
-|📋 Stubbed
+|Anthropic export format (JSON with chat_messages)
+|✅ Complete
 
 |Gemini
-|Google Takeout format
-|📋 Stubbed
+|Gem Chat Exporter, ai-chat-exporter formats
+|✅ Complete
 
 |Copilot
-|Microsoft export format
-|📋 Stubbed
+|VS Code Chat: Export Chat... format
+|✅ Complete
 
 |Perplexity
 |Research-focused conversations
@@ -341,12 +348,8 @@ crates/
 |===
 |Issue|Description|Priority
 
-|Parser stubs
-|Claude, Gemini, Copilot parsers are TODO
-|High
-
 |Test coverage
-|30% → 80% target
+|Add unit tests for parsers, storage, search (target 80%)
 |High
 
 |Error messages
@@ -412,11 +415,11 @@ Target: **Gold (55/55)**
 
 === Contribution Priorities
 
-1. **Provider parsers** - Claude, Gemini, Copilot
-2. **Test coverage** - Unit and integration tests
-3. **Documentation** - API docs, tutorials
-4. **Accessibility** - Screen reader, high contrast
-5. **Platform support** - Windows, WASM
+1. **Test coverage** - Unit and integration tests for parsers, storage, search
+2. **Documentation** - API docs, tutorials, examples
+3. **Accessibility** - Screen reader, high contrast
+4. **Platform support** - Windows, WASM
+5. **Additional providers** - Perplexity, Poe, local LLMs
 
 === Getting Involved
 
@@ -479,5 +482,5 @@ Following Semantic Versioning (SemVer):
 
 ---
 
-_Last updated: 2025-12-26_
+_Last updated: 2025-12-27_
 _Next review: Quarterly with releases_

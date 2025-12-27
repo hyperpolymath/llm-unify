@@ -115,3 +115,111 @@ impl ProviderTrait for ClaudeParser {
         Ok(())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_claude_export() {
+        let json = r#"{
+            "conversations": [
+                {
+                    "uuid": "conv-001",
+                    "name": "Test Conversation",
+                    "created_at": "2025-01-15T10:00:00Z",
+                    "updated_at": "2025-01-15T10:30:00Z",
+                    "chat_messages": [
+                        {
+                            "uuid": "msg-001",
+                            "sender": "human",
+                            "created_at": "2025-01-15T10:00:00Z",
+                            "text": "Hello, Claude!"
+                        },
+                        {
+                            "uuid": "msg-002",
+                            "sender": "assistant",
+                            "created_at": "2025-01-15T10:00:30Z",
+                            "text": "Hello! How can I help you today?"
+                        }
+                    ]
+                }
+            ]
+        }"#;
+
+        let parser = ClaudeParser;
+        let result = parser.parse(json.as_bytes());
+        assert!(result.is_ok());
+
+        let conversations = result.unwrap();
+        assert_eq!(conversations.len(), 1);
+
+        let conv = &conversations[0];
+        assert_eq!(conv.id, "conv-001");
+        assert_eq!(conv.title, "Test Conversation");
+        assert_eq!(conv.provider, Provider::Claude);
+        assert_eq!(conv.messages.len(), 2);
+
+        assert_eq!(conv.messages[0].role, MessageRole::User);
+        assert_eq!(conv.messages[0].content, "Hello, Claude!");
+
+        assert_eq!(conv.messages[1].role, MessageRole::Assistant);
+        assert_eq!(conv.messages[1].content, "Hello! How can I help you today?");
+    }
+
+    #[test]
+    fn test_parse_empty_export() {
+        let json = r#"{"conversations": []}"#;
+        let parser = ClaudeParser;
+        let result = parser.parse(json.as_bytes());
+        assert!(result.is_ok());
+        assert_eq!(result.unwrap().len(), 0);
+    }
+
+    #[test]
+    fn test_parse_missing_optional_fields() {
+        let json = r#"{
+            "conversations": [
+                {
+                    "uuid": "conv-001",
+                    "chat_messages": [
+                        {
+                            "uuid": "msg-001",
+                            "sender": "human",
+                            "text": "Hello"
+                        }
+                    ]
+                }
+            ]
+        }"#;
+
+        let parser = ClaudeParser;
+        let result = parser.parse(json.as_bytes());
+        assert!(result.is_ok());
+
+        let conversations = result.unwrap();
+        assert_eq!(conversations.len(), 1);
+        assert_eq!(conversations[0].title, "Untitled");
+    }
+
+    #[test]
+    fn test_validate_empty_id() {
+        let parser = ClaudeParser;
+        let conv = Conversation {
+            id: "".to_string(),
+            title: "Test".to_string(),
+            provider: Provider::Claude,
+            created_at: Utc::now(),
+            updated_at: Utc::now(),
+            messages: vec![],
+            metadata: Metadata::new(),
+        };
+        assert!(parser.validate(&conv).is_err());
+    }
+
+    #[test]
+    fn test_parser_name() {
+        let parser = ClaudeParser;
+        assert_eq!(parser.name(), "Claude");
+    }
+}

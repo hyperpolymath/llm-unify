@@ -8,7 +8,7 @@ pub mod gemini;
 
 pub use error::{Error, Result};
 
-use llm_unify_core::{Conversation, Provider, ProviderTrait};
+use llm_unify_core::{Provider, ProviderTrait};
 
 /// Get parser for a specific provider
 pub fn get_parser(provider: Provider) -> Box<dyn ProviderTrait> {

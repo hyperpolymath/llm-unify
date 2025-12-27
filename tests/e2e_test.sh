@@ -92,25 +92,43 @@ else
     fail "Claude import failed: $output"
 fi
 
-# 6. Test list command
+# 6. Import Gemini fixture
+info "Testing Gemini import..."
+output=$("$BINARY" --database "$TEST_DB" import gemini "${FIXTURES_DIR}/gemini_export.json" 2>&1)
+if [[ "$output" == *"Imported 1 conversation"* ]]; then
+    pass "Gemini import: 1 conversation"
+else
+    fail "Gemini import failed: $output"
+fi
+
+# 7. Import Copilot fixture
+info "Testing Copilot import..."
+output=$("$BINARY" --database "$TEST_DB" import copilot "${FIXTURES_DIR}/copilot_export.json" 2>&1)
+if [[ "$output" == *"Imported 1 conversation"* ]]; then
+    pass "Copilot import: 1 conversation"
+else
+    fail "Copilot import failed: $output"
+fi
+
+# 8. Test list command
 info "Testing list command..."
 output=$("$BINARY" --database "$TEST_DB" list 2>&1)
 if [[ "$output" == *"conv-chatgpt-001"* ]] && [[ "$output" == *"conv-claude-001"* ]]; then
-    pass "List shows all conversations"
+    pass "List shows conversations from all providers"
 else
     fail "List command failed: $output"
 fi
 
-# 7. Test stats command
+# 9. Test stats command
 info "Testing stats command..."
 output=$("$BINARY" --database "$TEST_DB" stats 2>&1)
-if [[ "$output" == *"Total conversations: 5"* ]] && [[ "$output" == *"Total messages: 18"* ]]; then
-    pass "Stats: 5 conversations, 18 messages"
+if [[ "$output" == *"Total conversations: 7"* ]] && [[ "$output" == *"Total messages: 22"* ]]; then
+    pass "Stats: 7 conversations, 22 messages (all providers)"
 else
     fail "Stats command failed: $output"
 fi
 
-# 8. Test validate command
+# 10. Test validate command
 info "Testing validate command..."
 output=$("$BINARY" --database "$TEST_DB" validate 2>&1)
 if [[ "$output" == *"SQLite integrity check passed"* ]] && [[ "$output" == *"Data consistency check passed"* ]] && [[ "$output" == *"PASSED"* ]]; then
@@ -119,7 +137,7 @@ else
     fail "Validate command failed: $output"
 fi
 
-# 9. Test search - async keyword
+# 11. Test search - async keyword
 info "Testing search (async)..."
 output=$("$BINARY" --database "$TEST_DB" search "async" 2>&1)
 if [[ "$output" == *"<mark>async</mark>"* ]]; then
@@ -128,16 +146,16 @@ else
     fail "Search for 'async' failed: $output"
 fi
 
-# 10. Test search - Rust keyword (multi-provider)
+# 12. Test search - Rust keyword (multi-provider)
 info "Testing search (Rust)..."
-output=$("$BINARY" --database "$TEST_DB" search "Rust" --limit 5 2>&1)
+output=$("$BINARY" --database "$TEST_DB" search "Rust" --limit 10 2>&1)
 if [[ "$output" == *"conv-chatgpt"* ]] && [[ "$output" == *"conv-claude"* ]]; then
-    pass "Search 'Rust' returns results from both providers"
+    pass "Search 'Rust' returns results from multiple providers"
 else
     fail "Search for 'Rust' failed: $output"
 fi
 
-# 11. Test search - FTS5 specific term
+# 13. Test search - FTS5 specific term
 info "Testing search (FTS5)..."
 output=$("$BINARY" --database "$TEST_DB" search "FTS5" 2>&1)
 if [[ "$output" == *"conv-chatgpt-002"* ]]; then
@@ -146,7 +164,7 @@ else
     fail "Search for 'FTS5' failed: $output"
 fi
 
-# 12. Test show command
+# 14. Test show command
 info "Testing show command..."
 output=$("$BINARY" --database "$TEST_DB" show conv-claude-001 2>&1)
 if [[ "$output" == *"Understanding Ownership in Rust"* ]] && [[ "$output" == *"[user]"* ]] && [[ "$output" == *"[assistant]"* ]]; then
@@ -155,7 +173,7 @@ else
     fail "Show command failed: $output"
 fi
 
-# 13. Test versioned export
+# 15. Test versioned export
 info "Testing versioned export..."
 output=$("$BINARY" --database "$TEST_DB" export conv-chatgpt-001 2>&1)
 if [[ "$output" == *'"format_version": 1'* ]] && [[ "$output" == *'"schema_version": 1'* ]] && [[ "$output" == *'"exported_at":'* ]]; then
@@ -164,7 +182,7 @@ else
     fail "Versioned export failed: $output"
 fi
 
-# 14. Test raw export
+# 16. Test raw export
 info "Testing raw export..."
 output=$("$BINARY" --database "$TEST_DB" export conv-chatgpt-001 --raw 2>&1)
 if [[ "$output" == *'"id": "conv-chatgpt-001"'* ]] && [[ "$output" != *'"format_version"'* ]]; then
@@ -173,7 +191,7 @@ else
     fail "Raw export failed: $output"
 fi
 
-# 15. Test backup with checksums
+# 17. Test backup with checksums
 info "Testing backup with integrity..."
 rm -f "$TEST_BACKUP" "$TEST_BACKUP.meta.json"
 output=$("$BINARY" --database "$TEST_DB" backup "$TEST_BACKUP" 2>&1)
@@ -183,7 +201,7 @@ else
     fail "Backup failed: $output"
 fi
 
-# 16. Test backup metadata
+# 18. Test backup metadata
 info "Testing backup metadata..."
 if [[ -f "$TEST_BACKUP.meta.json" ]]; then
     meta_content=$(cat "$TEST_BACKUP.meta.json")
@@ -196,7 +214,7 @@ else
     fail "Backup metadata file not created"
 fi
 
-# 17. Test restore with validation
+# 19. Test restore with validation
 info "Testing restore with validation..."
 rm -f "${PROJECT_ROOT}/test_restore.db"
 output=$("$BINARY" --database "${PROJECT_ROOT}/test_restore.db" restore "$TEST_BACKUP" 2>&1)
@@ -206,16 +224,16 @@ else
     fail "Restore failed: $output"
 fi
 
-# 18. Verify restored database works
+# 20. Verify restored database works
 info "Verifying restored database..."
 output=$("$BINARY" --database "${PROJECT_ROOT}/test_restore.db" stats 2>&1)
-if [[ "$output" == *"Total conversations: 5"* ]] && [[ "$output" == *"Total messages: 18"* ]]; then
-    pass "Restored database has correct data"
+if [[ "$output" == *"Total conversations: 7"* ]] && [[ "$output" == *"Total messages: 22"* ]]; then
+    pass "Restored database has correct data (all 4 providers)"
 else
     fail "Restored database verification failed: $output"
 fi
 
-# 19. Test TUI launch (requires pseudo-terminal)
+# 21. Test TUI launch (requires pseudo-terminal)
 info "Testing TUI launch..."
 if command -v script &> /dev/null; then
     # Use script to provide a pseudo-terminal
@@ -241,6 +259,8 @@ echo "  - Database initialization with schema versioning: OK"
 echo "  - Schema and version commands: OK"
 echo "  - ChatGPT import (3 conversations): OK"
 echo "  - Claude import (2 conversations): OK"
+echo "  - Gemini import (1 conversation): OK"
+echo "  - Copilot import (1 conversation): OK"
 echo "  - List, stats, show commands: OK"
 echo "  - Database validation (SQLite + consistency): OK"
 echo "  - Full-text search with highlighting: OK"

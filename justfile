@@ -125,7 +125,7 @@ validate-rsr: check-unsafe validate-well-known check-license
     @echo "================================"
     @echo ""
     @echo "Checking required documentation..."
-    @test -f README.md && echo "✓ README.md" || echo "❌ README.md"
+    @test -f README.adoc && echo "✓ README.adoc" || echo "❌ README.adoc"
     @test -f SECURITY.md && echo "✓ SECURITY.md" || echo "❌ SECURITY.md"
     @test -f CONTRIBUTING.md && echo "✓ CONTRIBUTING.md" || echo "❌ CONTRIBUTING.md"
     @test -f CODE_OF_CONDUCT.md && echo "✓ CODE_OF_CONDUCT.md" || echo "❌ CODE_OF_CONDUCT.md"

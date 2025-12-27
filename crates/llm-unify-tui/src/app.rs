@@ -9,6 +9,7 @@ pub struct App {
     pub selected: usize,
     pub search_query: String,
     pub searching: bool,
+    #[allow(dead_code)] // Reserved for future use (refresh, search execution)
     db: Database,
 }
 

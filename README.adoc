@@ -52,7 +52,7 @@ llm-unify tui
 |Feature|Description
 
 |**Multi-Platform Import**
-|ChatGPT (full), Claude/Gemini/Copilot (coming v0.2)
+|ChatGPT, Claude, Gemini, and GitHub Copilot - all four major providers
 
 |**Full-Text Search**
 |SQLite FTS5-powered search with snippet highlighting
@@ -60,25 +60,27 @@ llm-unify tui
 |**Terminal UI**
 |Ratatui-based browser with vim bindings (`j`/`k`, `/` search)
 
-|**13 CLI Commands**
-|import, list, show, search, delete, export, stats, validate, backup, restore, init, tui, version
+|**14 CLI Commands**
+|import, list, show, search, delete, export, stats, validate, backup, restore, init, schema, tui, version
 
 |**Local-First Storage**
-|SQLite database with zero network dependencies
+|SQLite database with WAL mode and zero network dependencies
 
 |**Type-Safe Rust**
-|1,354 lines of idiomatic Rust, zero unsafe blocks
+|Idiomatic Rust with zero unsafe blocks
+
+|**Schema Versioning**
+|Automatic migrations with full version history
+
+|**Backup Integrity**
+|SHA-256 checksums with atomic operations and validation
 
 |**Connection Pooling**
 |Efficient SQLite access with up to 5 concurrent connections
-
-|**Backup/Restore**
-|Full database backup and recovery
 |===
 
 === Coming Soon (v0.2.0)
 
-* Claude, Gemini, Copilot import parsers
 * Database encryption (SQLCipher)
 * Export file encryption (age/GPG)
 * Enhanced TUI with message viewing
@@ -122,11 +124,14 @@ llm-unify init
 # ChatGPT (export from Settings → Data Controls → Export)
 llm-unify import chatgpt ./conversations.json
 
-# Claude (coming v0.2)
+# Claude (export from Anthropic Console → Settings → Export)
 llm-unify import claude ./claude-export.json
 
-# Gemini (coming v0.2)
-llm-unify import gemini ./takeout.json
+# Gemini (use browser extensions like Gem Chat Exporter)
+llm-unify import gemini ./gemini-export.json
+
+# GitHub Copilot (VS Code: Chat: Export Chat... command)
+llm-unify import copilot ./copilot-chat.json
 ----
 
 === 3. Search Your History
@@ -291,19 +296,22 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(
 |Show database statistics
 
 |`validate`
-|Check database integrity
+|Check database integrity (SQLite + data consistency)
 
 |`backup <output>`
-|Create database backup
+|Create database backup with SHA-256 checksum
 
 |`restore <input>`
-|Restore from backup
+|Restore from backup with integrity verification
+
+|`schema`
+|Display schema version and migration history
 
 |`tui`
 |Launch terminal UI
 
 |`version`
-|Show version information
+|Show version information (schema, backup, export formats)
 |===
 
 == Security
@@ -312,6 +320,8 @@ CREATE VIRTUAL TABLE messages_fts USING fts5(
 
 * **Zero unsafe code** - Memory safety verified by Rust compiler
 * **Parameterized queries** - SQL injection prevention via SQLx
+* **Backup integrity** - SHA-256 checksums with pre-restore validation
+* **Atomic operations** - WAL mode prevents corruption during writes
 * **No telemetry** - Zero data collection or phone-home behavior
 * **Local-only** - All data stays on your machine
 * **Open source** - Fully auditable codebase

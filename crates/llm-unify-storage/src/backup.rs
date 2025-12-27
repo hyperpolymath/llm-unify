@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use sqlx::SqlitePool;
 use std::fs;
-use std::io::{Read, Write};
+use std::io::Read;
 use std::path::Path;
 
 /// Backup metadata stored alongside the database backup

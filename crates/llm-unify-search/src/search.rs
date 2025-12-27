@@ -1,6 +1,6 @@
 //! Search engine implementation
 
-use crate::{Error, Result};
+use crate::Result;
 use llm_unify_storage::Database;
 use sqlx::Row;
 

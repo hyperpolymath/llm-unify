@@ -7,11 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### New Parsers
+- **Claude parser** - Full implementation supporting Anthropic export format
+- **Gemini parser** - Supports Gem Chat Exporter and ai-chat-exporter formats
+- **GitHub Copilot parser** - Supports VS Code "Chat: Export Chat..." format
+
+#### Schema & Backup
+- **Schema versioning** - Automatic migrations with version history
+- **`schema` command** - Display current schema version and migration history
+- **Backup integrity** - SHA-256 checksums for all backups
+- **Atomic backups** - Temp file + rename pattern prevents corruption
+- **Restore validation** - Pre-restore checksum and SQLite header verification
+- **WAL mode** - Write-ahead logging for improved concurrency
+
+#### Compliance
+- **.well-known/security.txt** - RFC 9116 compliant security disclosure
+- **.well-known/ai.txt** - AI training policies and ethical guidelines
+- **.well-known/humans.txt** - Human attribution and credits
+- **.config/well-known.scm** - Scheme configuration for .well-known resources
+- **mustfile.ncl** - Nickel configuration for project requirements
+
+#### E2E Testing
+- **21 comprehensive E2E tests** covering all providers and features
+- **Test fixtures** for ChatGPT, Claude, Gemini, and Copilot formats
+
+### Changed
+- Updated CLI from 13 to 14 commands (added `schema`)
+- Improved `validate` command with SQLite integrity + data consistency checks
+- Enhanced `version` command to show schema, backup, and export format versions
+- Export now includes format metadata (version, schema, timestamp)
+
 ### Planned for v0.2.0
 - SQLite database encryption (SQLCipher)
 - Export file encryption (age/GPG)
-- Claude export parser
-- Gemini export parser
 - Enhanced TUI with message viewing
 - 80%+ test coverage
 
@@ -44,13 +74,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 #### Crates
 - `llm-unify-core` - Core types, traits, and domain models
 - `llm-unify-storage` - SQLite persistence layer with migrations
-- `llm-unify-parser` - Import parsers (ChatGPT implemented, others stubbed)
+- `llm-unify-parser` - Import parsers for all major providers
 - `llm-unify-search` - Full-text search engine
 - `llm-unify-cli` - Command-line interface
 - `llm-unify-tui` - Terminal user interface
 
 #### Documentation
-- `README.md` - Project overview and quick start
+- `README.adoc` - Project overview and quick start
 - `SECURITY.md` - RFC 9116 compliant security policy
 - `CONTRIBUTING.md` - Contribution guidelines with TPCF Perimeter 3
 - `CODE_OF_CONDUCT.md` - Contributor Covenant 2.1 + CCCP extensions
